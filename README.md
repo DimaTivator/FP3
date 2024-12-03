@@ -32,7 +32,7 @@ dune exec FP3 -- -m linear -s 2
 ```
 Одновременный запуск двху методов интерполяции
 ```
-dune exec FP3 -- -s 1.2 -m lagrange -w 4 -m linear -s 2
+dune exec FP3 -- --step 1.2 --method lagrange --window 4 --method linear
 ```
 
 ## Пример работы приложения
