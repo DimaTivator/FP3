@@ -32,15 +32,15 @@ let run_interpolation step selected_methods lagrange_window_size =
   Seq.iter print_string output_tables
 ;;
 
-let window_t =
+let window =
   let doc = "Window size for Lagrange interpolation (default: 3)" in
   Arg.(value & opt int 3 & info [ "w"; "window" ] ~doc)
 ;;
 
-let step_t = Arg.(value & opt float 1.0 & info [ "s"; "step" ])
+let step = Arg.(value & opt float 1.0 & info [ "s"; "step" ])
 let methods = [ "linear"; "lagrange" ]
 
-let methods_t =
+let method_names =
   Arg.(
     value & opt_all (enum (List.map (fun m -> m, m) methods)) [] & info [ "m"; "method" ])
 ;;
@@ -52,6 +52,6 @@ let parse_cli_args step method_names lagrange_window_size =
     run_interpolation step (List.sort_uniq Stdlib.compare methods) lagrange_window_size
 ;;
 
-let cli = Term.(const parse_cli_args $ step_t $ methods_t $ window_t)
+let cli = Term.(const parse_cli_args $ step $ method_names $ window)
 let command = Cmd.v (Cmd.info "Interpolation app") cli
 let () = exit (Cmd.eval command)

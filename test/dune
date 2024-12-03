@@ -1,2 +1,4 @@
 (test
- (name test_FP3))
+ (name test_FP3)
+ (libraries alcotest FP3.compmath FP3.io)
+ (modules test_FP3 test_interpolation test_runner))

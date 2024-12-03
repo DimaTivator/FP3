@@ -1,16 +1,16 @@
 open Generator
 
-let compute_interpolation_result name get_interpolation_function step points =
+let compute_interpolation_result method_name get_interpolation_function step points =
   let left = fst (List.hd points) in
   let right = fst (List.hd (List.rev points)) in
   let interpolation_function = get_interpolation_function points in
   let interpolated_points =
     map_points interpolation_function (linspace left right step)
   in
-  name, interpolation_function, points, interpolated_points
+  method_name, interpolation_function, points, interpolated_points
 ;;
 
-let window_interpolation step methods points =
+let process_sliding_windows step methods points =
   let min_window_size =
     methods
     |> List.map (fun (_, _, window_size) -> window_size)
@@ -27,7 +27,7 @@ let window_interpolation step methods points =
 let run_interpolation_methods step methods points =
   points
   |> Seq.memoize
-  |> window_interpolation step methods
+  |> process_sliding_windows step methods
   |> Window.nzip
   |> Seq.flat_map List.to_seq
   |> Seq.filter_map Fun.id
