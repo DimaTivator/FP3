@@ -1,0 +1,4 @@
+(executable
+ (public_name FP3)
+ (name cli)
+ (libraries compmath io cmdliner))
