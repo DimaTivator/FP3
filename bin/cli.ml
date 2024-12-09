@@ -1,57 +1,54 @@
-open Compmath
-open Cmdliner
-open Io
-
-let available_interpolators lagrange_window_size =
-  [ ( "linear"
-    , Runner.compute_interpolation_result
-        "Linear interpolation"
-        Interpolation.linear_interpolation
-    , 2 )
-  ; ( "lagrange"
-    , Runner.compute_interpolation_result
-        "Lagrange interpolation"
-        Interpolation.lagrange_interpolation
-    , lagrange_window_size )
-  ]
-
-let run_interpolation step selected_methods lagrange_window_size =
-  let active_methods =
-    List.filter
-      (fun (method_name, _, _) -> List.mem method_name selected_methods)
-      (available_interpolators lagrange_window_size)
+let parse_arguments args =
+  let rec aux args methods step window_size =
+    match args with
+    | ("-m" | "--method") :: method_name :: rest ->
+      aux rest (method_name :: methods) step window_size
+    | ("-s" | "--step") :: step_value :: rest ->
+      (try
+         let step = float_of_string step_value in
+         aux rest methods step window_size
+       with
+       | Failure _ -> failwith "Invalid step value. It must be a float.")
+    | ("-w" | "--window") :: window_size_value :: rest ->
+      (try
+         let window_size = int_of_string window_size_value in
+         aux rest methods step window_size
+       with
+       | Failure _ -> failwith "Invalid window size. It must be an integer.")
+    | [] -> List.rev methods, step, window_size
+    | _ -> failwith "Unknown argument or missing value."
   in
-  let interpolation_results =
-    Runner.run_interpolation_methods step active_methods Points_input.input_points_stream
-  in
-  let output_tables =
-    Seq.map
-      (fun (name, _, _, points) -> Output.print_table name points)
-      interpolation_results
-  in
-  Seq.iter print_string output_tables
+  aux args [] 1.0 3
 ;;
 
-let parse_cli_args step method_names lagrange_window_size =
-  match method_names with
-  | [] -> failwith "No interpolation method specified"
-  | methods ->
-    run_interpolation step (List.sort_uniq Stdlib.compare methods) lagrange_window_size
+let filter_methods methods =
+  let available_methods = [ "linear"; "lagrange" ] in
+  let filtered_methods =
+    methods
+    |> List.sort_uniq Stdlib.compare
+    |> List.filter (fun method_name -> List.mem method_name available_methods)
+  in
+  match filtered_methods with
+  | [] -> failwith "No valid methods specified"
+  | methods -> methods
 ;;
 
-let cli =
-  let window =
-    let doc = "Window size for Lagrange interpolation (default: 3)" in
-    Arg.(value & opt int 3 & info [ "w"; "window" ] ~doc)
+let () =
+  (* Remove Sys.argv.(0) (program name) *)
+  let args = Array.to_list Sys.argv |> List.tl in
+  let methods, step, window_size =
+    try parse_arguments args with
+    | Failure message ->
+      Printf.eprintf "Error: %s\n" message;
+      print_string
+        "Usage: program -m <method1> -m <method2> ... -s <step> -w <window_size>\n";
+      exit 1
   in
-  let step = Arg.(value & opt float 1.0 & info [ "s"; "step" ]) in
-  let methods = [ "linear"; "lagrange" ] in
-  let method_names =
-    Arg.(
-      value & opt_all (enum (List.map (fun m -> m, m) methods)) [] & info [ "m"; "method" ])
+  let filtered_methods =
+    try filter_methods methods with
+    | Failure message ->
+      Printf.eprintf "Error: %s\n" message;
+      exit 1
   in
-  Term.(const parse_cli_args $ step $ method_names $ window)
+  Run.run_interpolation filtered_methods step window_size
 ;;
-
-let command = Cmd.v (Cmd.info "Interpolation app") cli
-let () = exit (Cmd.eval command)
