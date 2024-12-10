@@ -24,10 +24,7 @@ let print_table_vertically name data =
   let header_width = 8 in
   let border = String.make (header_width + 2 + col_width + 3) '-' in
   let header = sprintf "| X       | Y       |" in
-  let rows = List.map2
-    (fun x y -> sprintf "|%s |%s |" x y)
-    x_strs y_strs
-  in
+  let rows = List.map2 (fun x y -> sprintf "|%s |%s |" x y) x_strs y_strs in
   let all_rows = String.concat "\n" rows in
   sprintf "\n%s\n%s\n%s\n%s\n%s\n" name border header border all_rows ^ border ^ "\n"
 ;;
