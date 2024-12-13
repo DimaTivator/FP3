@@ -15,6 +15,11 @@ let available_interpolators lagrange_window_size =
   ]
 ;;
 
+let seq_head seq =
+  match Seq.uncons seq with
+  | Some (head, _) -> head
+  | None -> -.infinity
+
 let run_interpolation methods step window_size =
   let runnable_methods =
     List.filter
@@ -22,7 +27,10 @@ let run_interpolation methods step window_size =
       (available_interpolators window_size)
   in
   let interpolation_results =
-    Runner.run_interpolation_methods step runnable_methods Input.input_points_stream
+    Runner.run_interpolation_methods
+      step
+      runnable_methods
+      Input.input_points_stream
   in
   let output_tables =
     Seq.map

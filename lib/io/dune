@@ -1,3 +1,4 @@
 (library
  (name io)
- (public_name FP3.io))
+ (public_name FP3.io)
+ (libraries compmath))

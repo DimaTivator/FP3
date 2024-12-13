@@ -1,15 +1,18 @@
 open Generator
 
 let compute_interpolation_result method_name get_interpolation_function step points =
-  let left = fst (List.hd points) in
+  let left = (fst (List.nth points (List.length points - 2))) +. step in
+  (* let left = (fst (List.nth points (List.length points - 2))) in *)
+  (* let left = fst (List.hd points) in *)
   let right = fst (List.hd (List.rev points)) in
   let interpolation_function = get_interpolation_function points in
   let interpolated_points =
-    Seq.map (fun x -> x, (interpolation_function x)) (linspace left right step)
+    Seq.map (fun x -> x, interpolation_function x) (linspace left right step)
   in
   method_name, interpolation_function, points, interpolated_points
 ;;
 
+(* let process_sliding_windows step methods points start_from = *)
 let process_sliding_windows step methods points =
   let min_window_size =
     methods
