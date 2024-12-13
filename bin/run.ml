@@ -22,10 +22,7 @@ let run_interpolation methods step window_size =
       (available_interpolators window_size)
   in
   let interpolation_results =
-    Runner.run_interpolation_methods
-      step
-      runnable_methods
-      Points_input.input_points_stream
+    Runner.run_interpolation_methods step runnable_methods Input.input_points_stream
   in
   let output_tables =
     Seq.map
