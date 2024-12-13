@@ -5,7 +5,7 @@ let compute_interpolation_result method_name get_interpolation_function step poi
   let right = fst (List.hd (List.rev points)) in
   let interpolation_function = get_interpolation_function points in
   let interpolated_points =
-    Seq.map (fun x -> interpolation_function x, x) (linspace left right step)
+    Seq.map (fun x -> x, (interpolation_function x)) (linspace left right step)
   in
   method_name, interpolation_function, points, interpolated_points
 ;;
