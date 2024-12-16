@@ -33,15 +33,6 @@ let filter_methods methods =
   | methods -> methods
 ;;
 
-let print_memory_usage () =
-  let stat = Gc.stat () in
-  let words_to_megabytes words =
-    float_of_int words *. float_of_int (Sys.word_size / 8) /. 1_000_000.0
-  in
-  let heap_size_mb = words_to_megabytes stat.Gc.heap_words in
-  Printf.printf "Memory used: %.2f MB\n" heap_size_mb
-;;
-
 let () =
   (* Remove Sys.argv.(0) (program name) *)
   let args = Array.to_list Sys.argv |> List.tl in
@@ -59,6 +50,5 @@ let () =
       Printf.eprintf "Error: %s\n" message;
       exit 1
   in
-  Run.run_interpolation filtered_methods step window_size;
-  print_memory_usage ()
+  Run.run_interpolation filtered_methods step window_size
 ;;
